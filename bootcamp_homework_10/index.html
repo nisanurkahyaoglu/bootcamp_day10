@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Post Sayfası</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+
+<body>
+    <h1>Postlar</h1>
+    <div id="postContainer"></div>
+    <div id="loader">Yükleniyor...</div>
+    <div id="error">Bir hata oluştu, lütfen tekrar deneyin.</div>
+
+    <script>
+        let start = 0;
+        const limit = 5;
+        let loading = false;
+
+        function loadPosts() {
+            if (loading) return;
+            loading = true;
+            $('#loader').show();
+            $('#error').hide();
+
+            setTimeout(() => {
+                $.get(`https://jsonplaceholder.typicode.com/posts?_start=${start}&_limit=${limit}`)
+                    .done(function(data) {
+                        data.forEach(post => {
+                            $('#postContainer').append(`
+                        <div class="post">
+                            <h3>${post.title}</h3>
+                            <p>${post.body}</p>
+                        </div>
+                    `);
+                        });
+                        start += limit;
+                        loading = false;
+                        $('#loader').hide();
+                    })
+                    .fail(function() {
+                        $('#error').show();
+                        loading = false;
+                        $('#loader').hide();
+                    });
+            }, 1000);
+        }
+
+        $(document).ready(function() {
+            loadPosts();
+
+            $(window).scroll(function() {
+                if ($(window).scrollTop() + $(window).height() >= $(document).height() - 100) {
+                    loadPosts();
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>
